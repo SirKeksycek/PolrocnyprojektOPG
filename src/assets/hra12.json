@@ -1,0 +1,143 @@
+{
+  "intro": "Hawkins je opäť v ohrození. Brána do Upside Down je nestabilná. Ak spravíš chybu, zomrieš. Tentokrát môžeš nájsť aj skrytý poklad, ale za cenu otvoreného portálu.",
+  "outro": "Príbeh Hawkinsu sa na dnes uzavrel. Možno nabudúce skúsiš iný ending?",
+  "player": {
+    "startRoomId": "1"
+  },
+  "rooms": [
+    {
+      "roomId": "1",
+      "label": "Les pri Hawkins",
+      "desc": "Stojíš v lese. Vidíš starú búdu a zamknutý vstup do laboratória. Možno je tu skrytá cesta.",
+      "items": [
+        {
+          "label": "kluc",
+          "desc": "Hrdzavý kľúč od laboratória"
+        }
+      ],
+      "exits": [
+        { "label": "buda",   "roomId": "2" },
+        { "label": "lab",    "roomId": "4" }
+      ]
+    },
+    {
+      "roomId": "2",
+      "label": "Stará búda",
+      "desc": "Búda je zničená. Pod podlahou vedie tunel. Na stole je baterka a stará mapa.",
+      "items": [
+        {
+          "label": "baterka",
+          "desc": "Staršia baterka, bez nej je tma nebezpečná"
+        },
+        {
+          "label": "mapa",
+          "desc": "Stará mapa, ktorá ukazuje skryté cesty"
+        }
+      ],
+      "exits": [
+        { "label": "tunel", "roomId": "3" },
+        { "label": "les",   "roomId": "1" }
+      ]
+    },
+    {
+      "roomId": "3",
+      "label": "Tunel",
+      "desc": "Tmavý tunel vedie priamo k portálu. Môžeš sa vrátiť do búdy alebo pokračovať.",
+      "exits": [
+        { "label": "portal", "roomId": "5" },
+        { "label": "buda",   "roomId": "2" }
+      ]
+    },
+    {
+      "roomId": "4",
+      "label": "Hawkins Lab",
+      "desc": "Laboratórium je zamknuté a ponorené do tmy. Bez svetla tu neprežiješ.",
+      "uses": [
+        {
+          "itemId": "kluc",
+          "desc": "Použil si kľúč a odomkol dvere do laboratória.",
+          "replace": {
+            "desc": "Laboratórium je odomknuté, ale je tu úplná tma. Potrebuješ baterku, aby si videl cestu.",
+            "exits": [
+              { "label": "tmavolab", "roomId": "6" },
+              { "label": "les",      "roomId": "1" }
+            ]
+          }
+        },
+        {
+          "itemId": "baterka",
+          "desc": "Rozsvietil si baterku a vidíš ovládací panel portálu.",
+          "replace": {
+            "desc": "Laboratórium je osvetlené. Vidíš cestu k portálu.",
+            "exits": [
+              { "label": "portal", "roomId": "5" },
+              { "label": "les",    "roomId": "1" }
+            ]
+          }
+        }
+      ],
+      "exits": [
+        { "label": "zamknute", "roomId": "7" },
+        { "label": "les",      "roomId": "1" }
+      ]
+    },
+    {
+      "roomId": "5",
+      "label": "Portál",
+      "desc": "Pred tebou pulzuje brána do Upside Down. Vedľa nej leží kovová páka. Môžeš ísť dnu, ale je to riskantné.",
+      "items": [
+        {
+          "label": "paka",
+          "desc": "Ťažká kovová páka na uzavretie brány"
+        }
+      ],
+      "uses": [
+        {
+          "itemId": "paka",
+          "desc": "Použil si páku a brána sa začala zatvárať.",
+          "replace": {
+            "desc": "Brána je uzavretá. Hawkins je v bezpečí.",
+            "exits": [
+              { "label": "koniec", "roomId": "8" }
+            ]
+          }
+        }
+      ],
+      "exits": [
+        { "label": "dnu",    "roomId": "6" },
+        { "label": "tunel",  "roomId": "3" },
+        { "label": "lab",    "roomId": "4" }
+      ]
+    },
+    {
+      "roomId": "6",
+      "label": "Upside Down",
+      "desc": "Vstúpil si do Upside Down. Je tu tma a nebezpečenstvo na každom kroku.",
+      "game_over": "V Upside Down ťa dostal Demogorgon. Zlý ending.",
+      "exits": [
+        { "label": "spat", "roomId": "5" }
+      ]
+    },
+    {
+      "roomId": "7",
+      "label": "Zamknutý vstup",
+      "desc": "Skúsil si vojsť bez kľúča.",
+      "game_over": "Bez kľúča si sa nedostal dnu. Zomrel si od frustrácie. Zlý ending.",
+      "exits": [
+        { "label": "les", "roomId": "1" }
+      ]
+    },
+    {
+      "roomId": "8",
+      "label": "Uzavretá brána",
+      "desc": "Brána je uzavretá a Hawkins je v bezpečí.",
+      "game_over": "Použil si všetky itemy správne a zachránil Hawkins. Dobrý ending!"
+    },
+    {
+      "roomId": "9",
+      "label": "Skrytý poklad",
+      "desc": "Našiel si skrytý poklad v lese vďaka mape.",
+      "game_over": "Máš poklad, ale portál ostal otvorený. Hawkins je v nebezpečenstve. Alternatívny ending."
+    }
+  ]
+}
