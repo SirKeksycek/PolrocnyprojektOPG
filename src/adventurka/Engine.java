@@ -1,195 +1,177 @@
 package adventurka;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import org.json.*;
+import java.nio.file.*;
 import java.util.*;
 
 public class Engine {
 
-    private final Hra hra;
-    private final String intro;
-    private final String outro;
+    private Map<String, Room> rooms = new HashMap<>();
+    private Room current;
+    private Set<String> inventory = new HashSet<>();
+    private boolean running = true;
+    private String outro = "";
 
-    private Engine(Hra hra, String intro, String outro) {
-        this.hra = hra;
-        this.intro = intro;
-        this.outro = outro;
-    }
+    public void load(String path) throws Exception {
+        String json = Files.readString(Path.of(path));
+        JSONObject root = new JSONObject(json);
 
-    public static Engine load(String filePath) throws IOException {
-        String json = Files.readString(Paths.get(filePath), StandardCharsets.UTF_8);
-        json = json.replaceAll("\\s+", " ").trim();
+        System.out.println(root.getString("intro"));
+        System.out.println();
 
-        String intro = extractQuoted(json, "\"intro\": \"");
-        String outro = extractQuoted(json, "\"outro\": \"");
-        String startRoomId = extractQuoted(json, "\"startRoomId\": \"");
-        if (startRoomId.isEmpty()) startRoomId = extractQuoted(json, "\"player\": { \"startRoomId\": \"");
+        outro = root.optString("outro", "");
 
-        int roomsStartIdx = json.indexOf("\"rooms\": [");
-        if (roomsStartIdx < 0) throw new IOException("Nenašiel sa začiatok rooms");
-        roomsStartIdx += "\"rooms\": [".length();
-        int roomsEndIdx = json.lastIndexOf("]");
-        String roomsBlock = json.substring(roomsStartIdx, roomsEndIdx).trim();
+        String startId = root.getJSONObject("player").getString("startRoomId");
 
-        Map<String, Room> rooms = new HashMap<>();
-        String[] roomBlocks = roomsBlock.split("\\}\\s*,\\s*\\{");
-        for (int i = 0; i < roomBlocks.length; i++) {
-            String block = roomBlocks[i].trim();
-            if (i == 0 && block.startsWith("{")) block = block.substring(1);
-            if (i == roomBlocks.length - 1 && block.endsWith("}")) block = block.substring(0, block.length() - 1);
-            Room room = parseRoom(block);
+        JSONArray arr = root.getJSONArray("rooms");
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject r = arr.getJSONObject(i);
+            Room room = new Room();
+
+            room.id = r.getString("roomId");
+            room.label = r.getString("label");
+            room.desc = r.getString("desc");
+            room.gameOver = r.optString("game_over", null);
+
+            // items
+            JSONArray items = r.optJSONArray("items");
+            if (items != null) {
+                for (int j = 0; j < items.length(); j++) {
+                    JSONObject it = items.getJSONObject(j);
+                    room.items.put(it.getString("label"), it.getString("desc"));
+                }
+            }
+
+            // exits
+            JSONArray exits = r.optJSONArray("exits");
+            if (exits != null) {
+                for (int j = 0; j < exits.length(); j++) {
+                    JSONObject e = exits.getJSONObject(j);
+                    room.exits.put(e.getString("label"), e.getString("roomId"));
+                }
+            }
+
+            // uses
+            JSONArray uses = r.optJSONArray("uses");
+            if (uses != null) {
+                for (int j = 0; j < uses.length(); j++) {
+                    JSONObject u = uses.getJSONObject(j);
+                    Use use = new Use();
+                    use.itemId = u.getString("itemId");
+                    use.desc = u.getString("desc");
+
+                    JSONObject rep = u.getJSONObject("replace");
+                    use.newDesc = rep.getString("desc");
+
+                    JSONArray repExits = rep.getJSONArray("exits");
+                    for (int k = 0; k < repExits.length(); k++) {
+                        JSONObject e = repExits.getJSONObject(k);
+                        use.newExits.put(e.getString("label"), e.getString("roomId"));
+                    }
+                    room.uses.add(use);
+                }
+            }
+
             rooms.put(room.id, room);
         }
 
-        Player player = new Player(startRoomId);
-        Hra hra = new Hra(player, rooms);
-        return new Engine(hra, intro, outro);
-    }
-
-    private static String extractQuoted(String text, String key) {
-        int start = text.indexOf(key);
-        if (start < 0) return "";
-        start += key.length();
-        int end = text.indexOf("\"", start);
-        if (end < 0) return "";
-        return text.substring(start, end);
-    }
-
-    private static String extractArray(String text, String startMarker, String endMarker) {
-        int start = text.indexOf(startMarker);
-        if (start < 0) return "";
-        start += startMarker.length();
-        int end = text.indexOf(endMarker, start);
-        if (end < 0) return "";
-        return text.substring(start, end).trim();
-    }
-
-    private static Room parseRoom(String roomText) {
-        Room room = new Room(extractQuoted(roomText, "\"roomId\": \""));
-        room.label = extractQuoted(roomText, "\"label\": \"");
-        room.description = extractQuoted(roomText, "\"desc\": \"");
-        if (room.description.isEmpty()) room.description = extractQuoted(roomText, "\"description\": \"");
-        room.gameOver = extractQuoted(roomText, "\"game_over\": \"");
-
-        String exitsPart = extractArray(roomText, "\"exits\": [", "]");
-        if (!exitsPart.isEmpty()) {
-            String[] exits = exitsPart.split("\\}\\s*,\\s*\\{");
-            for (String ex : exits) {
-                String dir = extractQuoted(ex, "\"label\": \"");
-                String target = extractQuoted(ex, "\"roomId\": \"");
-                if (!dir.isEmpty() && !target.isEmpty()) {
-                    room.exits.put(dir.toLowerCase(), new Exit(dir, target));
-                }
-            }
-        }
-
-        String itemsPart = extractArray(roomText, "\"items\": [", "]");
-        if (!itemsPart.isEmpty()) {
-            String[] items = itemsPart.split("\\}\\s*,\\s*\\{");
-            for (String it : items) {
-                String lbl = extractQuoted(it, "\"label\": \"");
-                String desc = extractQuoted(it, "\"desc\": \"");
-                if (!lbl.isEmpty()) {
-                    room.items.put(lbl.toLowerCase(), new Item(lbl, desc));
-                }
-            }
-        }
-
-        String usesPart = extractArray(roomText, "\"uses\": [", "]");
-        if (!usesPart.isEmpty()) {
-            String[] usesArr = usesPart.split("\\}\\s*,\\s*\\{");
-            for (String u : usesArr) {
-                String itemId = extractQuoted(u, "\"itemId\": \"");
-                String message = extractQuoted(u, "\"desc\": \"");
-                UseAction ua = new UseAction(itemId, message);
-
-                String replacePart = extractArray(u, "\"replace\": {", "}");
-                if (!replacePart.isEmpty()) {
-                    Replace rep = new Replace();
-                    rep.newDesc = extractQuoted(replacePart, "\"desc\": \"");
-
-                    String exitsReplace = extractArray(replacePart, "\"exits\": [", "]");
-                    if (!exitsReplace.isEmpty()) {
-                        String[] exArr = exitsReplace.split("\\}\\s*,\\s*\\{");
-                        List<Exit> newExits = new ArrayList<>();
-                        for (String ex : exArr) {
-                            String dir = extractQuoted(ex, "\"label\": \"");
-                            String target = extractQuoted(ex, "\"roomId\": \"");
-                            if (!dir.isEmpty() && !target.isEmpty()) {
-                                newExits.add(new Exit(dir, target));
-                            }
-                        }
-                        rep.newExits = newExits;
-                    }
-                    ua.replace = rep;
-                }
-
-                room.uses.put(itemId.toLowerCase(), ua);
-            }
-        }
-
-        return room;
+        current = rooms.get(startId);
     }
 
     public void play() {
         Scanner sc = new Scanner(System.in);
-        System.out.println(intro);
 
-        while (true) {
-            Room current = hra.getCurrentRoom();
+        while (running) {
+            printRoom();
 
-            // --- Popis miestnosti (len description) ---
-            System.out.println("\n" + current.description);
-
-            // vypíš exits (cesty)
-            if (!current.exits.isEmpty()) {
-                System.out.print("Cesty: ");
-                System.out.println(String.join(", ", current.exits.keySet()));
-            }
-
-            // vypíš items (predmety)
-            if (!current.items.isEmpty()) {
-                System.out.print("Predmety: ");
-                System.out.println(String.join(", ", current.items.keySet()));
-            }
-
-            // --- Skontroluj game over ---
-            String gameOver = hra.checkGameOver();
-            if (gameOver != null && !gameOver.isEmpty()) {
-                System.out.println("\n" + gameOver);
-                System.out.println(outro);
+            if (current.gameOver != null) {
+                System.out.println(current.gameOver);
+                if (!outro.isEmpty()) System.out.println(outro);
                 break;
             }
 
-            // --- Zadanie príkazu ---
-            System.out.print("\n> ");
-            String line = sc.nextLine().trim();
-            if (line.isEmpty()) continue;
-
-            String[] parts = line.split("\\s+", 2);
-            String cmd = parts[0].toLowerCase();
-            String arg = parts.length > 1 ? parts[1] : null;
-
-            switch (cmd) {
-                case "go" -> hra.go(arg);
-                case "take" -> hra.take(arg);
-                case "use" -> hra.use(arg);
-                case "inventory" -> {
-                    if (hra.player.inventory.isEmpty()) {
-                        System.out.println("Inventár je prázdny.");
-                    } else {
-                        System.out.println("Inventár: " + String.join(", ", hra.player.inventory.keySet()));
-                    }
-                }
-                case "exit", "quit" -> {
-                    System.out.println("Koniec hry.");
-                    return;
-                }
-                default -> System.out.println("Neznámy príkaz. Použi: go <smer>, take <predmet>, use <predmet>, inventory, exit");
-            }
+            System.out.print("> ");
+            String cmd = sc.nextLine().trim().toLowerCase();
+            handle(cmd);
         }
     }
 
+    private void printRoom() {
+        System.out.println(current.desc);
+
+        if (!current.exits.isEmpty()) {
+            System.out.println("Cesty: " + String.join(", ", current.exits.keySet()));
+        }
+        if (!current.items.isEmpty()) {
+            System.out.println("Predmety: " + String.join(", ", current.items.keySet()));
+        }
+    }
+
+    private void handle(String cmd) {
+        if (cmd.startsWith("go ")) {
+            go(cmd.substring(3));
+        } else if (cmd.startsWith("take ")) {
+            take(cmd.substring(5));
+        } else if (cmd.startsWith("use ")) {
+            use(cmd.substring(4));
+        } else if (cmd.equals("inventory")) {
+            System.out.println("Máš: " + inventory);
+        } else {
+            System.out.println("Neznámy príkaz.");
+        }
+    }
+
+    private void go(String exit) {
+        if (!current.exits.containsKey(exit)) {
+            System.out.println("Tým smerom sa nedá ísť.");
+            return;
+        }
+        current = rooms.get(current.exits.get(exit));
+    }
+
+    private void take(String item) {
+        if (!current.items.containsKey(item)) {
+            System.out.println("Tento predmet tu nie je.");
+            return;
+        }
+        inventory.add(item);
+        current.items.remove(item);
+        System.out.println("Vzal si " + item + ".");
+    }
+
+    private void use(String item) {
+        if (!inventory.contains(item)) {
+            System.out.println("Nemáš tento predmet.");
+            return;
+        }
+
+        for (Use u : current.uses) {
+            if (u.itemId.equals(item)) {
+                System.out.println(u.desc);
+                current.desc = u.newDesc;
+                current.exits = u.newExits;
+                return;
+            }
+        }
+        System.out.println("Tu sa to nedá použiť.");
+    }
+
+    // ====== VNÚTORNÉ TRIEDY ======
+
+    static class Room {
+        String id;
+        String label;
+        String desc;
+        String gameOver;
+        Map<String, String> exits = new LinkedHashMap<>();
+        Map<String, String> items = new LinkedHashMap<>();
+        List<Use> uses = new ArrayList<>();
+    }
+
+    static class Use {
+        String itemId;
+        String desc;
+        String newDesc;
+        Map<String, String> newExits = new LinkedHashMap<>();
+    }
 }
