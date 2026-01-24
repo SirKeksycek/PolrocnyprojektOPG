@@ -1,102 +1,127 @@
 {
-  "intro": "Hawkins je opat v ohrozeni. Brana do Upside Down je nestabilna. Ak spravis chybu, zomries. Tentokrat mozes najst aj skryty poklad, ale za cenu otvoreneho portalu.",
-  "outro": "Pribeh Hawkinsu sa na dnes uzavrel. Mozno nabuduce skusis iny ending?",
+  "intro": "Mesto Ravenrock je v ohrozeni. Energeticke jadro sa prehrieva. Jedna chyba a vsetko vybuchne. Mozes zachranit mesto alebo odist s koristou.",
+  "outro": "Pribeh Ravenrocku sa skoncil. Kazda volba mala nasledky.",
   "player": {
     "startRoomId": "1"
   },
   "rooms": [
     {
       "roomId": "1",
-      "label": "Les pri Hawkins",
-      "desc": "Stojis v lese. Vidis staru budu a zamknuty vstup do laboratoria. Mozno je tu skryta cesta.",
+      "label": "Okraj mesta",
+      "desc": "Stojis na okraji mesta Ravenrock. Vidis sklad, straznu vezu a zamknutu branu do centra.",
       "items": [
-        {
-          "label": "kluc",
-          "desc": "Hrdzavy kluc od laboratoria"
-        }
+        { "label": "karta", "desc": "Pristupova karta do mestskych objektov" }
       ],
       "exits": [
-        { "label": "buda",   "roomId": "2" },
-        { "label": "lab",    "roomId": "4" }
+        { "label": "sklad", "roomId": "2" },
+        { "label": "veza", "roomId": "3" }
       ]
     },
     {
       "roomId": "2",
-      "label": "Stara buda",
-      "desc": "Buda je znicena. Pod podlahou vedie tunel. Na stole je baterka a stara mapa.",
+      "label": "Opusteny sklad",
+      "desc": "V sklade je ticho. Na zemi lezi naradie a stara mapa.",
       "items": [
+        { "label": "naradie", "desc": "Tazke naradie vhodne na opravy" },
+        { "label": "mapa", "desc": "Mapa tajnych chodeb pod mestom" }
+      ],
+      "uses": [
         {
-          "label": "baterka",
-          "desc": "Starsia baterka, bez nej je tma nebezpecna"
-        },
-        {
-          "label": "mapa",
-          "desc": "Stara mapa, ktora ukazuje skryte cesty"
+          "itemId": "mapa",
+          "desc": "Pouzil si mapu a nasiel tajnu podzemnu chodbu. Tajna miestnost je teraz dostupna.",
+          "replace": {
+            "desc": "Mapa ukazuje skrytú chodbu pod mestom.",
+            "exits": [
+              { "label": "hlbka", "roomId": "9" },
+              { "label": "sklad", "roomId": "2" }
+            ]
+          }
         }
       ],
       "exits": [
-        { "label": "tunel", "roomId": "3" },
-        { "label": "les",   "roomId": "1" }
+        { "label": "chodba", "roomId": "4" },
+        { "label": "spat", "roomId": "1" }
       ]
     },
     {
       "roomId": "3",
-      "label": "Tunel",
-      "desc": "Tmavy tunel vedie priamo k portalu. Mozes sa vratit do budy alebo pokracovat.",
+      "label": "Strazna veza",
+      "desc": "Z veze vidis cele mesto. V skrinke je baterka.",
+      "items": [
+        { "label": "baterka", "desc": "Silna baterka osvetlujuca tmu" }
+      ],
+      "uses": [
+        {
+          "itemId": "baterka",
+          "desc": "Rozsvietil si baterku a vidíš cestu do centra mesta.",
+          "replace": {
+            "desc": "Strážna veža je osvetlená. Môžeš bezpečne ísť do centra.",
+            "exits": [
+              { "label": "centrum", "roomId": "5" },
+              { "label": "spat", "roomId": "1" }
+            ]
+          }
+        }
+      ],
       "exits": [
-        { "label": "portal", "roomId": "5" },
-        { "label": "buda",   "roomId": "2" }
+        { "label": "centrum", "roomId": "5" },
+        { "label": "spat", "roomId": "1" }
       ]
     },
     {
       "roomId": "4",
-      "label": "Hawkins Lab",
-      "desc": "Laboratorium je zamknute a ponorene do tmy. Bez svetla tu neprezijes.",
+      "label": "Podzemna chodba",
+      "desc": "Tmava chodba vedie pod centrum mesta.",
+      "exits": [
+        { "label": "jadro", "roomId": "6" },
+        { "label": "sklad", "roomId": "2" }
+      ]
+    },
+    {
+      "roomId": "5",
+      "label": "Brana do centra",
+      "desc": "Brana je zamknuta elektronickym systemom. Potrebuješ kartu a osvetlenie baterkou, aby si mohol vojst.",
       "uses": [
         {
-          "itemId": "kluc",
-          "desc": "Pouzil si kluc a odomkol dvere do laboratoria.",
+          "itemId": "karta",
+          "desc": "Pouzil si kartu a brana sa otvorila.",
           "replace": {
-            "desc": "Laboratorium je odomknute, ale je tu uplna tma. Potrebujes baterku, aby si videl cestu.",
+            "desc": "Brana do centra je otvorena. Ale nezabudni, centrum je tmave, potrebujes baterku!",
             "exits": [
-              { "label": "tmavolab", "roomId": "6" },
-              { "label": "les",      "roomId": "1" }
-            ]
-          }
-        },
-        {
-          "itemId": "baterka",
-          "desc": "Rozsvietil si baterku a vidis ovladaci panel portalu.",
-          "replace": {
-            "desc": "Laboratorium je osvetlene. Vidis cestu k portalu.",
-            "exits": [
-              { "label": "portal", "roomId": "5" },
-              { "label": "les",    "roomId": "1" }
+              { "label": "centrum", "roomId": "7" },
+              { "label": "veza", "roomId": "3" }
             ]
           }
         }
       ],
       "exits": [
-        { "label": "zamknute", "roomId": "7" },
-        { "label": "les",      "roomId": "1" }
+        { "label": "zamknute", "roomId": "10" },
+        { "label": "veza", "roomId": "3" }
       ]
     },
     {
-      "roomId": "5",
-      "label": "Portal",
-      "desc": "Pred tebou pulzuje brana do Upside Down. Vedla nej lezi kovova paca. Mozes ist dnu, ale je to riskantne.",
+      "roomId": "6",
+      "label": "Energeticke jadro",
+      "desc": "Jadro je nestabilne. Vedla lezi ovladacia paka.",
       "items": [
-        {
-          "label": "paca",
-          "desc": "Tazka kovova paca na uzavretie brany"
-        }
+        { "label": "paka", "desc": "Ovladacia paka jadra" }
       ],
       "uses": [
         {
-          "itemId": "paca",
-          "desc": "Pouzil si pacu a brana sa zacala zatvarat.",
+          "itemId": "naradie",
+          "desc": "Pouzil si naradie na stabilizaciu jadra.",
           "replace": {
-            "desc": "Brana je uzavreta. Hawkins je v bezpeci.",
+            "desc": "Jadro je stabilizovane. Mesto je zachranene.",
+            "exits": [
+              { "label": "koniec", "roomId": "8" }
+            ]
+          }
+        },
+        {
+          "itemId": "paka",
+          "desc": "Pouzil si paku a stabilizoval jadro manuálne.",
+          "replace": {
+            "desc": "Jadro je teraz stabilne. Mesto je zachranene.",
             "exits": [
               { "label": "koniec", "roomId": "8" }
             ]
@@ -104,40 +129,39 @@
         }
       ],
       "exits": [
-        { "label": "dnu",    "roomId": "6" },
-        { "label": "tunel",  "roomId": "3" },
-        { "label": "lab",    "roomId": "4" }
-      ]
-    },
-    {
-      "roomId": "6",
-      "label": "Upside Down",
-      "desc": "Vstupil si do Upside Down. Je tu tma a nebezpecenstvo na kazdom kroku.",
-      "game_over": "V Upside Down ta dostal Demogorgon. Zly ending.",
-      "exits": [
-        { "label": "spat", "roomId": "5" }
+        { "label": "hlbka", "roomId": "9" },
+        { "label": "chodba", "roomId": "4" }
       ]
     },
     {
       "roomId": "7",
-      "label": "Zamknuty vstup",
-      "desc": "Skusil si vojst bez kluca.",
-      "game_over": "Bez kluca si sa nedostal dnu. Zomrel si od frustracie. Zly ending.",
+      "label": "Centrum mesta",
+      "desc": "Mesto je prazdne, ale citis bliziacu sa katastrofu.",
       "exits": [
-        { "label": "les", "roomId": "1" }
-      ]
+        { "label": "jadro", "roomId": "6" }
+      ],
+      "game_over_conditional": {
+        "required_item": "baterka",
+        "fail_message": "Isiel si do centra bez osvetlenia baterkou. Padol si do tmy a zomrel si! Zlý ending."
+      }
     },
     {
       "roomId": "8",
-      "label": "Uzavreta brana",
-      "desc": "Brana je uzavreta a Hawkins je v bezpeci.",
-      "game_over": "Pouzil si vsetky itemy spravne a zachranil Hawkins. Dobrý ending!"
+      "label": "Zachranene mesto",
+      "desc": "Ravenrock prezilo.",
+      "game_over": "Spravne si pouzil predmety a zachranil mesto. Dobry ending."
     },
     {
       "roomId": "9",
-      "label": "Skryty poklad",
-      "desc": "Nasiel si skryty poklad v lese vdaka mape.",
-      "game_over": "Mas poklad, ale portal ostal otvoreny. Hawkins je v nebezpecenstve. Alternativny ending."
+      "label": "Tajna miestnost",
+      "desc": "Nasiel si tajny trezor plny zlata.",
+      "game_over": "Mas poklad, ale jadro explodovalo. Alternativny ending."
+    },
+    {
+      "roomId": "10",
+      "label": "Zamknuta brana",
+      "desc": "Snazil si sa vojst bez karty.",
+      "game_over": "System ta zlikvidoval. Zly ending."
     }
   ]
 }

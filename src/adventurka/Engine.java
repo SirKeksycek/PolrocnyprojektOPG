@@ -3,7 +3,6 @@ package adventurka;
 import org.json.*;
 import java.nio.file.*;
 import java.util.*;
-import java.text.Normalizer;
 
 public class Engine {
 
@@ -12,16 +11,28 @@ public class Engine {
     private Set<String> inventory = new LinkedHashSet<>();
     private boolean running = true;
     private String outro = "";
+    private int steps = 0;
 
-    // =========================================================
-    // Načítanie hry z JSON
-    // =========================================================
+    // nove flagy
+    private boolean vezaOsvetlena = false;
+    private boolean jadroStabilne = false;
+    private boolean kartaPouzitaVCentrum = false;
+
     public void load(String path) throws Exception {
         String json = Files.readString(Path.of(path));
         JSONObject root = new JSONObject(json);
 
-        System.out.println(stripDiacritics(root.getString("intro")));
-        System.out.println();
+        System.out.println("========================================");
+        System.out.println("     WELCOME TO RAVENROCK ADVENTURE     ");
+        System.out.println("========================================\n");
+        System.out.println(root.getString("intro"));
+        System.out.println("\n========================================\n");
+
+        System.out.println("Prikazy:");
+        System.out.println(" go <smer>");
+        System.out.println(" take <predmet>");
+        System.out.println(" use <predmet>");
+        System.out.println(" inventory\n");
 
         outro = root.optString("outro", "");
 
@@ -37,7 +48,6 @@ public class Engine {
             room.desc = r.getString("desc");
             room.gameOver = r.optString("game_over", null);
 
-            // items
             JSONArray items = r.optJSONArray("items");
             if (items != null) {
                 for (int j = 0; j < items.length(); j++) {
@@ -46,7 +56,6 @@ public class Engine {
                 }
             }
 
-            // exits
             JSONArray exits = r.optJSONArray("exits");
             if (exits != null) {
                 for (int j = 0; j < exits.length(); j++) {
@@ -55,12 +64,12 @@ public class Engine {
                 }
             }
 
-            // uses
             JSONArray uses = r.optJSONArray("uses");
             if (uses != null) {
                 for (int j = 0; j < uses.length(); j++) {
                     JSONObject u = uses.getJSONObject(j);
                     Use use = new Use();
+
                     use.itemId = u.getString("itemId");
                     use.desc = u.getString("desc");
 
@@ -72,6 +81,7 @@ public class Engine {
                         JSONObject e = repExits.getJSONObject(k);
                         use.newExits.put(e.getString("label"), e.getString("roomId"));
                     }
+
                     room.uses.add(use);
                 }
             }
@@ -82,9 +92,6 @@ public class Engine {
         current = rooms.get(startId);
     }
 
-    // =========================================================
-    // Hlavny loop hry
-    // =========================================================
     public void play() {
         Scanner sc = new Scanner(System.in);
 
@@ -92,8 +99,9 @@ public class Engine {
             printRoom();
 
             if (current.gameOver != null) {
-                System.out.println(stripDiacritics(current.gameOver));
-                if (!outro.isEmpty()) System.out.println(stripDiacritics(outro));
+                System.out.println(current.gameOver);
+                if (!outro.isEmpty()) System.out.println("\n" + outro);
+                System.out.println("Pocet tahov: " + steps);
                 break;
             }
 
@@ -103,42 +111,42 @@ public class Engine {
         }
     }
 
-    // =========================================================
-    // Vypis miestnosti + inventar + pouzitelne predmety
-    // =========================================================
     private void printRoom() {
-        System.out.println(stripDiacritics(current.desc));
+        System.out.println("****************************************");
+        System.out.println("=== " + current.label + " ===");
+        System.out.println("****************************************\n");
+        System.out.println(current.desc + "\n");
 
         if (!current.exits.isEmpty()) {
-            System.out.println("Cesty: " + stripDiacritics(String.join(", ", current.exits.keySet())));
+            System.out.println("Cesty:");
+            for (String e : current.exits.keySet()) {
+                System.out.println(" ↳ " + e);
+            }
+            System.out.println();
         }
 
         if (!current.items.isEmpty()) {
-            System.out.println("Predmety: " + stripDiacritics(String.join(", ", current.items.keySet())));
+            System.out.println("Predmety v miestnosti:");
+            for (String i : current.items.keySet()) {
+                System.out.println(" • " + i);
+            }
+            System.out.println();
         }
 
-        if (!inventory.isEmpty()) {
-            System.out.println("Inventar: " + stripDiacritics(String.join(", ", inventory)));
-        } else {
-            System.out.println("Inventar je prazdny.");
-        }
-
-        // predmety z inventara, ktore sa daju pouzit v danej miestnosti
         List<String> usable = new ArrayList<>();
         for (Use u : current.uses) {
-            if (inventory.contains(u.itemId)) {
-                usable.add(u.itemId);
-            }
+            if (inventory.contains(u.itemId)) usable.add(u.itemId);
         }
         if (!usable.isEmpty()) {
-            System.out.println("Mozes pouzit: " + stripDiacritics(String.join(", ", usable)));
+            System.out.println("Predmety, ktore mozes pouzit:");
+            for (String u : usable) System.out.println(" • " + u);
+            System.out.println();
         }
-        System.out.println();
+
+        printInventory();
+        System.out.println("****************************************\n");
     }
 
-    // =========================================================
-    // Spracovanie prikazov
-    // =========================================================
     private void handle(String cmd) {
         if (cmd.startsWith("go ")) {
             go(cmd.substring(3));
@@ -147,9 +155,11 @@ public class Engine {
         } else if (cmd.startsWith("use ")) {
             use(cmd.substring(4));
         } else if (cmd.equals("inventory")) {
-            System.out.println("Inventar: " + stripDiacritics(String.join(", ", inventory)));
+            printInventory();
+        } else if (current.exits.containsKey(cmd)) {
+            go(cmd);
         } else {
-            System.out.println("Neznámy prikaz.");
+            System.out.println("Neznamy prikaz.");
         }
     }
 
@@ -158,8 +168,43 @@ public class Engine {
             System.out.println("Tym smerom sa neda ist.");
             return;
         }
+
+        // Secret: do centra sa da ist iba ak je baterka pouzita
+        if (current.id.equals("3") && exit.equals("centrum") && !vezaOsvetlena) {
+            System.out.println("Je tma a nevidis cestu! Bez baterky zomieras...");
+            System.out.println("Zly ending.");
+            running = false;
+            return;
+        }
+
+        // Centrum: ak bola karta pouzita, mozes ist aj do zamknute
+        if (current.id.equals("7") && exit.equals("zamknute") && !kartaPouzitaVCentrum) {
+            System.out.println("Brana je zamknuta. Nemozes prejst bez karty!");
+            System.out.println("Zly ending.");
+            running = false;
+            return;
+        }
+
+        // Hlbka z jadra - povolena iba ak bola pouzita paka
+        if (current.id.equals("6") && exit.equals("hlbka") && !jadroStabilne) {
+            System.out.println("Jadro je nestabilne! Nemozes ist do hlbky bez pouzitej paky! zabil ta vybuch.");
+            System.out.println("Zly ending.");
+            running = false;
+            return;
+        }
+
         current = rooms.get(current.exits.get(exit));
+        steps++;
+
+        // Specialny ending: naradie + paka + hlbka
+        if (current.id.equals("9") && jadroStabilne && inventory.contains("naradie") == false) {
+            current.gameOver = "Mesto je zachranene a nasiel si poklad!";
+            running = false;
+        }
+
+        printRoom();
     }
+
 
     private void take(String item) {
         if (!current.items.containsKey(item)) {
@@ -168,46 +213,57 @@ public class Engine {
         }
         inventory.add(item);
         current.items.remove(item);
-        System.out.println("Vzal si " + stripDiacritics(item) + ".");
+        System.out.println("Vzal si " + item + ".");
+        printRoom();
     }
 
     private void use(String item) {
         if (!inventory.contains(item)) {
-            System.out.println("Nemáš tento predmet.");
+            System.out.println("Nemas tento predmet.");
             return;
         }
 
         boolean used = false;
         for (Use u : current.uses) {
             if (u.itemId.equals(item)) {
-                System.out.println(stripDiacritics(u.desc));
+                System.out.println(u.desc);
                 current.desc = u.newDesc;
-                current.exits = u.newExits;
+
+                for (Map.Entry<String, String> entry : u.newExits.entrySet()) {
+                    current.exits.put(entry.getKey(), entry.getValue());
+                }
+
+                inventory.remove(item);
+
+                // nove flagy
+                if (item.equals("baterka") && current.id.equals("3")) vezaOsvetlena = true;
+                if (item.equals("paka") && current.id.equals("6")) jadroStabilne = true;
+                if (item.equals("karta") && current.id.equals("7")) kartaPouzitaVCentrum = true;
+
                 used = true;
                 break;
             }
         }
 
-        if (used) {
-            inventory.remove(item);
-            System.out.println("Predmet bol pouzity a odstranený z inventara.");
-        } else {
-            System.out.println("Tu sa to neda pouzit.");
+        if (!used) {
+            System.out.println("Tento predmet sa tu neda pouzit.");
         }
+        printRoom();
     }
 
-    // =========================================================
-    // Odstranenie dlznych a makcien
-    // =========================================================
-    public static String stripDiacritics(String s) {
-        if (s == null) return null;
-        String normalized = Normalizer.normalize(s, Normalizer.Form.NFD);
-        return normalized.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+    private void printInventory() {
+        System.out.println("Inventar:");
+        if (inventory.isEmpty()) {
+            System.out.println(" • prazdny");
+        } else {
+            for (String i : inventory) {
+                System.out.println(" • " + i);
+            }
+        }
+        System.out.println();
     }
 
-    // =========================================================
     // VNUTORNE TRIEDY
-    // =========================================================
     static class Room {
         String id;
         String label;
