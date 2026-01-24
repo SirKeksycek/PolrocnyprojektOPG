@@ -63,5 +63,5 @@ Projekt vytvorený ako školská Java adventúrna hra.
 Cieľom je precvičiť:
 objektovo orientované programovanie,
 prácu s JSON,
-github,
+práca s github,
 logiku hry a stavov.

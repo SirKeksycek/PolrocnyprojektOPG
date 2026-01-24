@@ -71,6 +71,6 @@ Príkazy závisia od aktuálnej miestnosti a inventára.
 
 Projekt vytvorený ako **školská Java adventúrna hra**, precvičuje:
 
-- [x] Github, MarkDown 
+- [x] Github, 
 - [x] Prácu s JSON dátami
 - [x] Hernú logiku a stavový systém
