@@ -3,20 +3,24 @@ package adventurka;
 import org.json.*;
 import java.nio.file.*;
 import java.util.*;
+import java.text.Normalizer;
 
 public class Engine {
 
     private Map<String, Room> rooms = new HashMap<>();
     private Room current;
-    private Set<String> inventory = new HashSet<>();
+    private Set<String> inventory = new LinkedHashSet<>();
     private boolean running = true;
     private String outro = "";
 
+    // =========================================================
+    // Načítanie hry z JSON
+    // =========================================================
     public void load(String path) throws Exception {
         String json = Files.readString(Path.of(path));
         JSONObject root = new JSONObject(json);
 
-        System.out.println(root.getString("intro"));
+        System.out.println(stripDiacritics(root.getString("intro")));
         System.out.println();
 
         outro = root.optString("outro", "");
@@ -78,6 +82,9 @@ public class Engine {
         current = rooms.get(startId);
     }
 
+    // =========================================================
+    // Hlavny loop hry
+    // =========================================================
     public void play() {
         Scanner sc = new Scanner(System.in);
 
@@ -85,8 +92,8 @@ public class Engine {
             printRoom();
 
             if (current.gameOver != null) {
-                System.out.println(current.gameOver);
-                if (!outro.isEmpty()) System.out.println(outro);
+                System.out.println(stripDiacritics(current.gameOver));
+                if (!outro.isEmpty()) System.out.println(stripDiacritics(outro));
                 break;
             }
 
@@ -96,17 +103,42 @@ public class Engine {
         }
     }
 
+    // =========================================================
+    // Vypis miestnosti + inventar + pouzitelne predmety
+    // =========================================================
     private void printRoom() {
-        System.out.println(current.desc);
+        System.out.println(stripDiacritics(current.desc));
 
         if (!current.exits.isEmpty()) {
-            System.out.println("Cesty: " + String.join(", ", current.exits.keySet()));
+            System.out.println("Cesty: " + stripDiacritics(String.join(", ", current.exits.keySet())));
         }
+
         if (!current.items.isEmpty()) {
-            System.out.println("Predmety: " + String.join(", ", current.items.keySet()));
+            System.out.println("Predmety: " + stripDiacritics(String.join(", ", current.items.keySet())));
         }
+
+        if (!inventory.isEmpty()) {
+            System.out.println("Inventar: " + stripDiacritics(String.join(", ", inventory)));
+        } else {
+            System.out.println("Inventar je prazdny.");
+        }
+
+        // predmety z inventara, ktore sa daju pouzit v danej miestnosti
+        List<String> usable = new ArrayList<>();
+        for (Use u : current.uses) {
+            if (inventory.contains(u.itemId)) {
+                usable.add(u.itemId);
+            }
+        }
+        if (!usable.isEmpty()) {
+            System.out.println("Mozes pouzit: " + stripDiacritics(String.join(", ", usable)));
+        }
+        System.out.println();
     }
 
+    // =========================================================
+    // Spracovanie prikazov
+    // =========================================================
     private void handle(String cmd) {
         if (cmd.startsWith("go ")) {
             go(cmd.substring(3));
@@ -115,15 +147,15 @@ public class Engine {
         } else if (cmd.startsWith("use ")) {
             use(cmd.substring(4));
         } else if (cmd.equals("inventory")) {
-            System.out.println("Máš: " + inventory);
+            System.out.println("Inventar: " + stripDiacritics(String.join(", ", inventory)));
         } else {
-            System.out.println("Neznámy príkaz.");
+            System.out.println("Neznámy prikaz.");
         }
     }
 
     private void go(String exit) {
         if (!current.exits.containsKey(exit)) {
-            System.out.println("Tým smerom sa nedá ísť.");
+            System.out.println("Tym smerom sa neda ist.");
             return;
         }
         current = rooms.get(current.exits.get(exit));
@@ -136,7 +168,7 @@ public class Engine {
         }
         inventory.add(item);
         current.items.remove(item);
-        System.out.println("Vzal si " + item + ".");
+        System.out.println("Vzal si " + stripDiacritics(item) + ".");
     }
 
     private void use(String item) {
@@ -145,19 +177,37 @@ public class Engine {
             return;
         }
 
+        boolean used = false;
         for (Use u : current.uses) {
             if (u.itemId.equals(item)) {
-                System.out.println(u.desc);
+                System.out.println(stripDiacritics(u.desc));
                 current.desc = u.newDesc;
                 current.exits = u.newExits;
-                return;
+                used = true;
+                break;
             }
         }
-        System.out.println("Tu sa to nedá použiť.");
+
+        if (used) {
+            inventory.remove(item);
+            System.out.println("Predmet bol pouzity a odstranený z inventara.");
+        } else {
+            System.out.println("Tu sa to neda pouzit.");
+        }
     }
 
-    // ====== VNÚTORNÉ TRIEDY ======
+    // =========================================================
+    // Odstranenie dlznych a makcien
+    // =========================================================
+    public static String stripDiacritics(String s) {
+        if (s == null) return null;
+        String normalized = Normalizer.normalize(s, Normalizer.Form.NFD);
+        return normalized.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+    }
 
+    // =========================================================
+    // VNUTORNE TRIEDY
+    // =========================================================
     static class Room {
         String id;
         String label;
