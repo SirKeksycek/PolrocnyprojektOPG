@@ -7,8 +7,12 @@ Niektoré chyby ťa môžu stáť život… alebo celý Hawkins.
 🎮 O čom hra je
 
 Hra je textová adventúra, kde hráč:
-sa pohybuje medzi miestnosťami (les, búda, tunel, laboratórium, portál…),
-zbiera predmety (kľúč, baterka, mapa, páka),
+sa pohybuje medzi miestnosťami:
+Okraj mesta, Opusteny sklad, Strazna veza, Podzemna chodba, Brana do centra, Energeticke jadro, Centrum mesta, Zachranene mesto, Tajna miestnost, Zamknuta brana
+
+
+a zbriera predmety:
+karta, naradie, mapa, baterka, paka
 používa predmety na správnych miestach,
 odhaľuje skryté cesty a alternatívne endingy.
 Existuje viacero koncov:
