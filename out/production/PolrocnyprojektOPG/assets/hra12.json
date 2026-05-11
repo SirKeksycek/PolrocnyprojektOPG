@@ -1,0 +1,167 @@
+{
+  "intro": "Mesto Ravenrock je v ohrozeni. Energeticke jadro sa prehrieva. Jedna chyba a vsetko vybuchne. Mozes zachranit mesto alebo odist s koristou.",
+  "outro": "Pribeh Ravenrocku sa skoncil. Kazda volba mala nasledky.",
+  "player": {
+    "startRoomId": "1"
+  },
+  "rooms": [
+    {
+      "roomId": "1",
+      "label": "Okraj mesta",
+      "desc": "Stojis na okraji mesta Ravenrock. Vidis sklad, straznu vezu a zamknutu branu do centra.",
+      "items": [
+        { "label": "karta", "desc": "Pristupova karta do mestskych objektov" }
+      ],
+      "exits": [
+        { "label": "sklad", "roomId": "2" },
+        { "label": "veza", "roomId": "3" }
+      ]
+    },
+    {
+      "roomId": "2",
+      "label": "Opusteny sklad",
+      "desc": "V sklade je ticho. Na zemi lezi naradie a stara mapa.",
+      "items": [
+        { "label": "naradie", "desc": "Tazke naradie vhodne na opravy" },
+        { "label": "mapa", "desc": "Mapa tajnych chodeb pod mestom" }
+      ],
+      "uses": [
+        {
+          "itemId": "mapa",
+          "desc": "Pouzil si mapu a nasiel tajnu podzemnu chodbu. Tajna miestnost je teraz dostupna.",
+          "replace": {
+            "desc": "Mapa ukazuje skrytú chodbu pod mestom.",
+            "exits": [
+              { "label": "hlbka", "roomId": "9" },
+              { "label": "sklad", "roomId": "2" }
+            ]
+          }
+        }
+      ],
+      "exits": [
+        { "label": "chodba", "roomId": "4" },
+        { "label": "spat", "roomId": "1" }
+      ]
+    },
+    {
+      "roomId": "3",
+      "label": "Strazna veza",
+      "desc": "Z veze vidis cele mesto. V skrinke je baterka.",
+      "items": [
+        { "label": "baterka", "desc": "Silna baterka osvetlujuca tmu" }
+      ],
+      "uses": [
+        {
+          "itemId": "baterka",
+          "desc": "Rozsvietil si baterku a vidíš cestu do centra mesta.",
+          "replace": {
+            "desc": "Strážna veža je osvetlená. Môžeš bezpečne ísť do centra.",
+            "exits": [
+              { "label": "centrum", "roomId": "5" },
+              { "label": "spat", "roomId": "1" }
+            ]
+          }
+        }
+      ],
+      "exits": [
+        { "label": "centrum", "roomId": "5" },
+        { "label": "spat", "roomId": "1" }
+      ]
+    },
+    {
+      "roomId": "4",
+      "label": "Podzemna chodba",
+      "desc": "Tmava chodba vedie pod centrum mesta.",
+      "exits": [
+        { "label": "jadro", "roomId": "6" },
+        { "label": "sklad", "roomId": "2" }
+      ]
+    },
+    {
+      "roomId": "5",
+      "label": "Brana do centra",
+      "desc": "Brana je zamknuta elektronickym systemom. Potrebuješ kartu a osvetlenie baterkou, aby si mohol vojst.",
+      "uses": [
+        {
+          "itemId": "karta",
+          "desc": "Pouzil si kartu a brana sa otvorila.",
+          "replace": {
+            "desc": "Brana do centra je otvorena. Ale nezabudni, centrum je tmave, potrebujes baterku!",
+            "exits": [
+              { "label": "centrum", "roomId": "7" },
+              { "label": "veza", "roomId": "3" }
+            ]
+          }
+        }
+      ],
+      "exits": [
+        { "label": "zamknute", "roomId": "10" },
+        { "label": "veza", "roomId": "3" }
+      ]
+    },
+    {
+      "roomId": "6",
+      "label": "Energeticke jadro",
+      "desc": "Jadro je nestabilne. Vedla lezi ovladacia paka.",
+      "items": [
+        { "label": "paka", "desc": "Ovladacia paka jadra" }
+      ],
+      "uses": [
+        {
+          "itemId": "naradie",
+          "desc": "Pouzil si naradie na stabilizaciu jadra.",
+          "replace": {
+            "desc": "Jadro je stabilizovane. Mesto je zachranene.",
+            "exits": [
+              { "label": "koniec", "roomId": "8" }
+            ]
+          }
+        },
+        {
+          "itemId": "paka",
+          "desc": "Pouzil si paku a stabilizoval jadro manuálne.",
+          "replace": {
+            "desc": "Jadro je teraz stabilne. Mesto je zachranene.",
+            "exits": [
+              { "label": "koniec", "roomId": "8" }
+            ]
+          }
+        }
+      ],
+      "exits": [
+        { "label": "hlbka", "roomId": "9" },
+        { "label": "chodba", "roomId": "4" }
+      ]
+    },
+    {
+      "roomId": "7",
+      "label": "Centrum mesta",
+      "desc": "Mesto je prazdne, ale citis bliziacu sa katastrofu.",
+      "exits": [
+        { "label": "jadro", "roomId": "6" }
+      ],
+      "game_over_conditional": {
+        "required_item": "baterka",
+        "fail_message": "Isiel si do centra bez osvetlenia baterkou. Padol si do tmy a zomrel si! Zlý ending."
+      }
+    },
+    {
+      "roomId": "8",
+      "label": "Zachranene mesto",
+      "desc": "Ravenrock prezilo.",
+      "game_over": "Spravne si pouzil predmety a zachranil mesto. Dobry ending."
+    },
+    {
+      "roomId": "9",
+      "label": "Tajna miestnost",
+      "desc": "Nasiel si tajny trezor plny zlata.",
+      "game_over": "Mas poklad, ale jadro explodovalo. Alternativny ending."
+    },
+    {
+      "roomId": "10",
+      "label": "Zamknuta brana",
+      "desc": "Snazil si sa vojst bez karty.",
+      "game_over": "System ta zlikvidoval. Zly ending."
+    }
+  ]
+}
