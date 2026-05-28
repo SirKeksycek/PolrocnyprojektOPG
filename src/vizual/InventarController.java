@@ -28,11 +28,20 @@ public class InventarController {
             "paka",     "vizual/img/paka.png"
     );
 
+    // Popisy itemov
+    private static final Map<String, String> POPISY = Map.of(
+            "karta",    "Prístupová karta do mestských objektov",
+            "baterka",  "Silná baterka osvetľujúca tmavé oblasti",
+            "naradie",  "Ťažké náradie vhodné na opravy",
+            "mapa",     "Mapa tajných chodieb pod mestom",
+            "paka",     "Ovládacia páka energetického jadra"
+    );
+
     @FXML
     public void initialize() {
         colNazov.setCellValueFactory(new PropertyValueFactory<>("nazov"));
         colMnozstvo.setCellValueFactory(new PropertyValueFactory<>("mnozstvo"));
-        colTyp.setCellValueFactory(new PropertyValueFactory<>("typ"));
+        colTyp.setCellValueFactory(new PropertyValueFactory<>("popis"));
 
         // Stĺpec s obrázkom
         colObrazok.setCellValueFactory(new PropertyValueFactory<>("obrazok"));
@@ -52,7 +61,8 @@ public class InventarController {
 
         for (String item : Application.engine.getInventory()) {
             ImageView obrazok = vytvorObrazok(item);
-            polozky.add(new InventarPolozka(item, "1", "-", obrazok));
+            String popis = POPISY.getOrDefault(item, "Neznámy predmet");
+            polozky.add(new InventarPolozka(item, "1", popis, obrazok));
         }
 
         inventarTable.setItems(polozky);
@@ -84,19 +94,19 @@ public class InventarController {
     public static class InventarPolozka {
         private final String nazov;
         private final String mnozstvo;
-        private final String typ;
+        private final String popis;
         private final ImageView obrazok;
 
-        public InventarPolozka(String nazov, String mnozstvo, String typ, ImageView obrazok) {
+        public InventarPolozka(String nazov, String mnozstvo, String popis, ImageView obrazok) {
             this.nazov = nazov;
             this.mnozstvo = mnozstvo;
-            this.typ = typ;
+            this.popis = popis;
             this.obrazok = obrazok;
         }
 
         public String getNazov()      { return nazov; }
         public String getMnozstvo()   { return mnozstvo; }
-        public String getTyp()        { return typ; }
+        public String getPopis()      { return popis; }
         public ImageView getObrazok() { return obrazok; }
     }
 }

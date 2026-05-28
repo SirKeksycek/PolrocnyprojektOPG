@@ -95,7 +95,6 @@
         }
       ],
       "exits": [
-        { "label": "zamknute", "roomId": "10" },
         { "label": "veza", "roomId": "3" }
       ]
     },
@@ -155,7 +154,7 @@
       "roomId": "9",
       "label": "Tajna miestnost",
       "desc": "Nasiel si tajny trezor plny zlata.",
-      "game_over": "Mas poklad, ale jadro explodovalo. Alternativny ending."
+      "game_over": null
     },
     {
       "roomId": "10",

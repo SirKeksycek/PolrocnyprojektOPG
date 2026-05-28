@@ -11,6 +11,7 @@ public class Engine {
     private Room current;
     private Set<String> inventory = new LinkedHashSet<>();
     private boolean running = true;
+    private String intro = "";
     private String outro = "";
     private int steps = 0;
 
@@ -23,10 +24,13 @@ public class Engine {
         String json = Files.readString(Path.of(path));
         JSONObject root = new JSONObject(json);
 
+        intro = root.optString("intro", "");
+        outro = root.optString("outro", "");
+
         System.out.println("========================================");
         System.out.println("     WELCOME TO RAVENROCK ADVENTURE     ");
         System.out.println("========================================\n");
-        System.out.println(root.getString("intro"));
+        System.out.println(intro);
         System.out.println("\n========================================\n");
 
         System.out.println("Prikazy:");
@@ -34,8 +38,6 @@ public class Engine {
         System.out.println(" take <predmet>");
         System.out.println(" use <predmet>");
         System.out.println(" inventory\n");
-
-        outro = root.optString("outro", "");
 
         String startId = root.getJSONObject("player").getString("startRoomId");
 
@@ -172,6 +174,14 @@ public class Engine {
             return;
         }
 
+        // Zamknuta brana - ak skúsiš ísť do centra bez karty, zomrieš
+        if (current.id.equals("5") && exit.equals("centrum") && !kartaPouzitaVCentrum) {
+            System.out.println("Brana je zamknuta. Nemozes prejst bez karty!");
+            System.out.println("Zly ending.");
+            running = false;
+            return;
+        }
+
         // Secret: do centra sa da ist iba ak je baterka pouzita
         if (current.id.equals("3") && exit.equals("centrum") && !vezaOsvetlena) {
             System.out.println("Je tma a nevidis cestu! Bez baterky zomieras...");
@@ -180,17 +190,9 @@ public class Engine {
             return;
         }
 
-        // Centrum: ak bola karta pouzita, mozes ist aj do zamknute
-        if (current.id.equals("7") && exit.equals("zamknute") && !kartaPouzitaVCentrum) {
-            System.out.println("Brana je zamknuta. Nemozes prejst bez karty!");
-            System.out.println("Zly ending.");
-            running = false;
-            return;
-        }
-
-        // Hlbka z jadra - povolena iba ak bola pouzita paka
+        // Hlbka z jadra - povolena iba ak bola pouzita paka/naradie
         if (current.id.equals("6") && exit.equals("hlbka") && !jadroStabilne) {
-            System.out.println("Jadro je nestabilne! Nemozes ist do hlbky bez pouzitej paky! zabil ta vybuch.");
+            System.out.println("Jadro je nestabilne! Nemozes ist do hlbky bez stabilizacie!");
             System.out.println("Zly ending.");
             running = false;
             return;
@@ -199,9 +201,13 @@ public class Engine {
         current = rooms.get(current.exits.get(exit));
         steps++;
 
-        // Specialny ending: naradie + paka + hlbka
-        if (current.id.equals("9") && jadroStabilne && inventory.contains("naradie") == false) {
-            current.gameOver = "Mesto je zachranene a nasiel si poklad!";
+        // Ending v tajnej miestnosti (room 9)
+        if (current.id.equals("9")) {
+            if (jadroStabilne) {
+                current.gameOver = "Mesto je zachranene a nasiel si poklad! Najlepší ending!";
+            } else {
+                current.gameOver = "Mas poklad, ale jadro explodovalo. Mohol si zachranit mesto...";
+            }
             running = false;
         }
 
@@ -241,7 +247,7 @@ public class Engine {
                 // nove flagy
                 if (item.equals("baterka") && current.id.equals("3")) vezaOsvetlena = true;
                 if (item.equals("paka") && current.id.equals("6")) jadroStabilne = true;
-                if (item.equals("karta") && current.id.equals("7")) kartaPouzitaVCentrum = true;
+                if (item.equals("karta") && current.id.equals("5")) kartaPouzitaVCentrum = true;
 
                 used = true;
                 break;
@@ -293,10 +299,48 @@ public class Engine {
         inventory.add(item);
         current.items.remove(item);
     }
+
     public void goGui(String exit) {
         if (!current.exits.containsKey(exit)) return;
+        
+        // Zamknuta brana - ak skúsiš ísť do centra bez karty, zomrieš
+        if (current.id.equals("5") && exit.equals("centrum") && !kartaPouzitaVCentrum) {
+            System.out.println("Brana je zamknuta. Nemozes prejst bez karty!");
+            current.gameOver = "Zly ending - System ta zlikvidoval.";
+            running = false;
+            return;
+        }
+
+        // Secret: do centra sa da ist iba ak je baterka pouzita
+        if (current.id.equals("3") && exit.equals("centrum") && !vezaOsvetlena) {
+            System.out.println("Je tma a nevidis cestu! Bez baterky zomieras...");
+            current.gameOver = "Zly ending - Isiel si do centra bez baterky.";
+            running = false;
+            return;
+        }
+
+        // Hlbka z jadra - povolena iba ak bola pouzita paka/naradie
+        if (current.id.equals("6") && exit.equals("hlbka") && !jadroStabilne) {
+            System.out.println("Jadro je nestabilne! Nemozes ist do hlbky bez stabilizacie!");
+            current.gameOver = "Zly ending - Zabil ta vybuch.";
+            running = false;
+            return;
+        }
+
         current = rooms.get(current.exits.get(exit));
         steps++;
+
+        // Ending v tajnej miestnosti (room 9)
+        if (current.id.equals("9")) {
+            if (jadroStabilne) {
+                // Jadro je stabilné - dobrý ending s pokladom
+                current.gameOver = "Mesto je zachranene a nasiel si poklad! Najlepší ending!";
+            } else {
+                // Jadro nie je stabilné - zlý ending
+                current.gameOver = "Mas poklad, ale jadro explodovalo. Mohol si zachranit mesto...";
+            }
+            running = false;
+        }
     }
 
     public List<String> getExitList() {
@@ -306,5 +350,75 @@ public class Engine {
     public Set<String> getInventory() {
         return Collections.unmodifiableSet(inventory);
     }
-}
 
+    public boolean useGui(String item) {
+        if (!inventory.contains(item)) {
+            return false;
+        }
+
+        for (Use u : current.uses) {
+            if (u.itemId.equals(item)) {
+                System.out.println(u.desc);
+                current.desc = u.newDesc;
+
+                for (Map.Entry<String, String> entry : u.newExits.entrySet()) {
+                    current.exits.put(entry.getKey(), entry.getValue());
+                }
+
+                inventory.remove(item);
+
+                // nove flagy
+                if (item.equals("baterka") && current.id.equals("3")) vezaOsvetlena = true;
+                if (item.equals("paka") && current.id.equals("6")) jadroStabilne = true;
+                if (item.equals("karta") && current.id.equals("5")) kartaPouzitaVCentrum = true;
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isGameOver() {
+        return !running || current.gameOver != null;
+    }
+
+    public String getGameOverMessage() {
+        if (current.gameOver != null) {
+            return current.gameOver;
+        }
+        if (!outro.isEmpty()) {
+            return outro;
+        }
+        return "Koniec hry.";
+    }
+
+    public boolean isWinCondition() {
+        // Win = room 8 (zachránené mesto) OR room 9 with stabilized core
+        return current.id.equals("8") || (current.id.equals("9") && jadroStabilne);
+    }
+
+    public String getCurrentRoomLabel() {
+        return current.label;
+    }
+
+    public String getCurrentRoomDesc() {
+        return current.desc;
+    }
+
+    public String getCurrentRoomId() {
+        return current.id;
+    }
+
+    public String getIntro() {
+        return intro;
+    }
+
+    public String getOutro() {
+        return outro;
+    }
+
+    public int getSteps() {
+        return steps;
+    }
+}
