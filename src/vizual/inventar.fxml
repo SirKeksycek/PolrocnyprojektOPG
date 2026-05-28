@@ -3,18 +3,20 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <VBox alignment="TOP_RIGHT" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vizual.InventarController">
-   <Button fx:id="exit" mnemonicParsing="false" onAction="#closeWindow" text="X" textFill="RED">
-      <font>
-         <Font size="15.0" />
-      </font>
-   </Button>
+    <Button fx:id="exit" mnemonicParsing="false" onAction="#closeWindow" text="X" textFill="RED">
+        <font>
+            <Font size="15.0" />
+        </font>
+    </Button>
     <TableView fx:id="inventarTable" prefHeight="400.0" prefWidth="600.0">
         <columns>
-            <TableColumn fx:id="colNazov" prefWidth="200.0" text="Názov" />
+            <TableColumn fx:id="colObrazok" prefWidth="80.0" text="Obrázok" />
+            <TableColumn fx:id="colNazov" prefWidth="170.0" text="Názov" />
             <TableColumn fx:id="colMnozstvo" prefWidth="150.0" text="Množstvo" />
             <TableColumn fx:id="colTyp" prefWidth="150.0" text="Typ" />
         </columns>

@@ -9,9 +9,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vizual.Controller">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="741.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vizual.Controller">
     <left>
-        <Button fx:id="Lava" mnemonicParsing="false" text="←" BorderPane.alignment="CENTER">
+        <Button fx:id="Lava" mnemonicParsing="false" onAction="#goLava" text="←" BorderPane.alignment="CENTER">
             <BorderPane.margin>
                 <Insets left="10.0" />
             </BorderPane.margin>
@@ -21,7 +21,7 @@
         </Button>
     </left>
     <right>
-        <Button fx:id="Prava" mnemonicParsing="false" text="→" BorderPane.alignment="CENTER">
+        <Button fx:id="Prava" mnemonicParsing="false" onAction="#goPrava" text="→" BorderPane.alignment="CENTER">
             <BorderPane.margin>
                 <Insets right="10.0" />
             </BorderPane.margin>
@@ -31,7 +31,7 @@
         </Button>
     </right>
     <bottom>
-        <Button fx:id="Nazad" mnemonicParsing="false" prefHeight="39.0" prefWidth="41.0" text="↓ " BorderPane.alignment="CENTER">
+        <Button fx:id="Nazad" mnemonicParsing="false" onAction="#goNazad" prefHeight="39.0" prefWidth="41.0" text="↓ " BorderPane.alignment="CENTER">
             <BorderPane.margin>
                 <Insets bottom="10.0" />
             </BorderPane.margin>
@@ -43,12 +43,17 @@
     <top>
         <VBox alignment="CENTER" prefHeight="116.0" prefWidth="600.0" BorderPane.alignment="CENTER">
             <children>
-                <HBox prefHeight="100.0" prefWidth="200.0">
+                <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0">
                     <children>
-                        <Button fx:id="inv" mnemonicParsing="false" prefHeight="63.0" prefWidth="84.0" text="Inventár" onAction="#openInventar" />
+                        <VBox fx:id="itemyVBox" alignment="TOP_LEFT" prefHeight="200.0" prefWidth="150.0" spacing="5.0">
+                            <padding>
+                                <Insets left="5.0" top="5.0" />
+                            </padding>
+                        </VBox>
+                        <Button fx:id="inv" mnemonicParsing="false" onAction="#openInventar" prefHeight="63.0" prefWidth="84.0" text="Inventár" />
                     </children>
                 </HBox>
-                <Button fx:id="Rovno" mnemonicParsing="false" text="↑">
+                <Button fx:id="Rovno" mnemonicParsing="false" onAction="#goRovno" text="↑">
                     <font>
                         <Font size="18.0" />
                     </font>

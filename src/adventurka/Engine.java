@@ -3,6 +3,7 @@ package adventurka;
 import org.json.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.Collections;
 
 public class Engine {
 
@@ -91,6 +92,8 @@ public class Engine {
 
         current = rooms.get(startId);
     }
+
+
 
     public void play() {
         Scanner sc = new Scanner(System.in);
@@ -280,4 +283,28 @@ public class Engine {
         String newDesc;
         Map<String, String> newExits = new LinkedHashMap<>();
     }
+
+    public Map<String, String> getRoomItems() {
+        return current.items;
+    }
+
+    public void takeGui(String item) {
+        if (!current.items.containsKey(item)) return;
+        inventory.add(item);
+        current.items.remove(item);
+    }
+    public void goGui(String exit) {
+        if (!current.exits.containsKey(exit)) return;
+        current = rooms.get(current.exits.get(exit));
+        steps++;
+    }
+
+    public List<String> getExitList() {
+        return new ArrayList<>(current.exits.keySet());
+    }
+
+    public Set<String> getInventory() {
+        return Collections.unmodifiableSet(inventory);
+    }
 }
+
