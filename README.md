@@ -1,71 +1,167 @@
-🧭 Adventúrka: Hawkins & Upside Down
+🧭 Adventúrka: Ravenrock
 
-Textová adventúrna hra inšpirovaná svetom Stranger Things, v ktorej sa ocitneš v okolí mesta Hawkins. Tvojou úlohou je preskúmavať lokácie, zbierať predmety, používať ich v správny čas a rozhodnutiami ovplyvniť, ako celý príbeh skončí.
-Pozor – nie každá cesta vedie k dobrému koncu 👀
-Niektoré chyby ťa môžu stáť život… alebo celý Hawkins.
+Textová adventúrna hra odohrávajúca sa v meste **Ravenrock**, ktorému hrozí katastrofa. Energetické jadro mesta sa prehrieva a len správne rozhodnutia môžu zabrániť zničeniu celého mesta.
+
+Tvojou úlohou je preskúmavať lokácie, zbierať predmety, používať ich na správnych miestach a rozhodnúť o osude Ravenrocku.
+
+Pozor – nie všetky cesty vedú k úspechu. Niektoré rozhodnutia môžu skončiť smrťou alebo zničením mesta.
+
+---
 
 🎮 O čom hra je
 
-Hra je textová adventúra, kde hráč:
-sa pohybuje medzi miestnosťami:
-Okraj mesta, Opusteny sklad, Strazna veza, Podzemna chodba, Brana do centra, Energeticke jadro, Centrum mesta, Zachranene mesto, Tajna miestnost, Zamknuta brana
+Hra je textová adventúra, v ktorej hráč:
 
+* pohybuje sa medzi miestnosťami,
+* zbiera užitočné predmety,
+* používa predmety na odomykanie nových možností,
+* objavuje tajné lokácie,
+* rozhoduje o tom, ako príbeh skončí.
 
-a zbriera predmety:
-karta, naradie, mapa, baterka, paka
-používa predmety na správnych miestach,
-odhaľuje skryté cesty a alternatívne endingy.
-Existuje viacero koncov:
-❌ zlý ending (Demogorgon 😬),
-✅ dobrý ending (záchrana Hawkinsu),
-⚠️ alternatívny ending (poklad, ale otvorený portál).
+---
+
+🗺️ Lokácie
+
+Počas hry môžeš navštíviť:
+
+* Okraj mesta
+* Opustený sklad
+* Strážna veža
+* Podzemná chodba
+* Brána do centra
+* Energetické jadro
+* Centrum mesta
+* Zachránené mesto
+* Tajná miestnosť
+* Zamknutá brána
+
+Nie všetky lokácie sú dostupné od začiatku hry.
+
+---
+
+🎒 Predmety
+
+Počas hrania môžeš nájsť:
+
+* karta
+* naradie
+* mapa
+* baterka
+* páka
+
+Každý predmet má svoj význam a niektoré lokácie alebo udalosti sú dostupné len po jeho použití.
+
+---
 
 🕹️ Ovládanie hry
 
-Hra funguje cez textové príkazy, napríklad:
-go les – pohyb do inej miestnosti
-take kluc – zobratie predmetu
-use baterka – použitie predmetu
-smerové príkazy závisia od aktuálnej miestnosti
-Všetko, čo môžeš robiť, závisí od toho, kde sa práve nachádzaš a čo máš v inventári.
+Hra využíva textové príkazy.
 
-▶️ Ako hru spustiť
+Príklady:
 
-Otvor projekt v Java IDE (napr. IntelliJ IDEA, Eclipse)
-Skontroluj, že máš:
-Java JDK 8 alebo novšie
-Spusti hlavnú triedu projektu (main)
-Hra sa ovláda cez konzolu / terminál.
+```text
+go sklad
+go veza
+take karta
+take baterka
+use karta
+use mapa
+use naradie
+```
+
+Dostupné príkazy závisia od aktuálnej miestnosti a predmetov v inventári.
+
+---
+
+🏁 Možné konce hry
+
+✅ Dobrý ending
+
+Podarí sa ti stabilizovať energetické jadro pomocou:
+
+* naradia alebo
+* páky
+
+Mesto Ravenrock bude zachránené.
+
+---
+
+❌ Zlý ending
+
+Ak vstúpiš do centra bez potrebného vybavenia, môžeš zomrieť v tme.
+
+Rovnako môžeš skončiť zle pri nesprávnom postupe cez zabezpečené oblasti mesta.
+
+---
+
+⚠️ Tajný ending
+
+Pomocou mapy môžeš objaviť skrytú cestu vedúcu do tajnej miestnosti s pokladom.
+
+Nie každý hráč ju nájde.
+
+---
+
+▶️ Spustenie hry
+
+1. Otvor projekt v Java IDE (IntelliJ IDEA, Eclipse alebo NetBeans).
+2. Uisti sa, že máš nainštalované:
+
+   * Java JDK 8 alebo novšie.
+3. Spusť hlavnú triedu projektu (`main`).
+4. Hra sa ovláda cez konzolu.
+
+---
 
 📦 Použité knižnice
 
-Projekt používa externú knižnicu na prácu s JSON súbormi (na mapu sveta hry):
-org.json:json:20240303
-Ak používaš Maven, pridaj do pom.xml.
-Ak IDE, tak ju stačí pridať ako externú knižnicu.
+Projekt používa knižnicu na spracovanie JSON súborov:
 
-🗺️ Mapa hry
+```xml
+<dependency>
+    <groupId>org.json</groupId>
+    <artifactId>json</artifactId>
+    <version>20240303</version>
+</dependency>
+```
 
-Mapa sveta je uložená v JSON súbore, ktorý definuje:
-miestnosti,
-prechody medzi nimi,
-predmety,
-použitia predmetov,
-a rôzne konce hry (game over stavy).
-Vďaka tomu sa dá hra jednoducho rozširovať o nové lokácie a príbehy.
+Ak nepoužívaš Maven, stačí pridať knižnicu medzi externé závislosti projektu.
+
+---
+
+🗃️ Herný svet
+
+Mapa hry je definovaná v JSON súbore, ktorý obsahuje:
+
+* miestnosti,
+* predmety,
+* prechody medzi miestnosťami,
+* použitia predmetov,
+* podmienky pre konce hry,
+* zmeny mapy počas hrania.
+
+Vďaka tomu je možné hru jednoducho rozširovať bez úpravy zdrojového kódu.
+
+---
 
 ✨ Zaujímavosti
 
-Nie všetky miestnosti sú dostupné hneď
-Niektoré akcie zmenia samotnú mapu hry
-Jeden predmet môže úplne zmeniť priebeh príbehu
-Skrytý ending existuje… ale nie je ľahké ho nájsť 😉
+* Niektoré cesty sa sprístupnia až po použití predmetov.
+* Mapa dokáže meniť svoje prepojenia počas hry.
+* Existujú skryté lokácie.
+* Viacero predmetov môže viesť k rovnakému cieľu.
+* Hra obsahuje viac než jeden možný koniec.
+
+---
 
 👤 Autor
 
-Projekt vytvorený ako školská Java adventúrna hra.
-Cieľom je precvičiť:
-objektovo orientované programovanie,
-prácu s JSON,
-práca s github,
-logiku hry a stavov.
+Projekt bol vytvorený ako školská Java adventúrna hra.
+
+Cieľ projektu:
+
+* precvičiť objektovo orientované programovanie,
+* prácu s JSON súbormi,
+* návrh hernej logiky,
+* správu projektu pomocou Git/GitHub,
+* prácu so stavmi hry a inventárom.
