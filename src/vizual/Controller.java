@@ -5,7 +5,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +24,7 @@ public class Controller {
     @FXML private VBox inventarVBox;
     @FXML private Label roomTitleLabel;
     @FXML private TextArea storyTextArea;
+    @FXML private ImageView roomImageView;
 
     private final Button[] sipky = new Button[4];
 
@@ -56,6 +60,22 @@ public class Controller {
         }
         if (storyTextArea != null) {
             storyTextArea.setText(Application.engine.getCurrentRoomDesc());
+        }
+        if (roomImageView != null) {
+            updateRoomImage();
+        }
+    }
+
+    private void updateRoomImage() {
+        String imageUrl = Application.engine.getCurrentRoomImageUrl();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            try {
+                Image image = new Image(imageUrl, true);
+                roomImageView.setImage(image);
+            } catch (Exception e) {
+                System.err.println("Failed to load image: " + imageUrl);
+                e.printStackTrace();
+            }
         }
     }
 
@@ -149,8 +169,36 @@ public class Controller {
         Alert alert = new Alert(isWin ? Alert.AlertType.INFORMATION : Alert.AlertType.WARNING);
         alert.setTitle(isWin ? "Víťazstvo!" : "Koniec Hry");
         alert.setHeaderText(isWin ? "Vyhral si!" : "Zomrel si!");
-        alert.setContentText(fullMessage);
-        alert.getDialogPane().setPrefSize(500, 350);
+        
+        // Add room image to the alert
+        String imageUrl = Application.engine.getCurrentRoomImageUrl();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            try {
+                Image image = new Image(imageUrl, true);
+                ImageView imageView = new ImageView(image);
+                imageView.setFitWidth(400);
+                imageView.setFitHeight(250);
+                imageView.setPreserveRatio(true);
+                
+                GridPane content = new GridPane();
+                content.setMaxWidth(Double.MAX_VALUE);
+                content.add(imageView, 0, 0);
+                
+                Label textLabel = new Label(fullMessage);
+                textLabel.setWrapText(true);
+                textLabel.setStyle("-fx-font-size: 14px;");
+                content.add(textLabel, 0, 1);
+                
+                alert.getDialogPane().setContent(content);
+            } catch (Exception e) {
+                alert.setContentText(fullMessage);
+                System.err.println("Failed to load game over image: " + imageUrl);
+            }
+        } else {
+            alert.setContentText(fullMessage);
+        }
+        
+        alert.getDialogPane().setPrefSize(500, 500);
         alert.showAndWait();
         
         // Disable all controls

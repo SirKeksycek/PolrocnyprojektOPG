@@ -50,6 +50,7 @@ public class Engine {
             room.label = r.getString("label");
             room.desc = r.getString("desc");
             room.gameOver = r.optString("game_over", null);
+            room.imageUrl = r.optString("imageUrl", null);
 
             JSONArray items = r.optJSONArray("items");
             if (items != null) {
@@ -278,6 +279,7 @@ public class Engine {
         String label;
         String desc;
         String gameOver;
+        String imageUrl;
         Map<String, String> exits = new LinkedHashMap<>();
         Map<String, String> items = new LinkedHashMap<>();
         List<Use> uses = new ArrayList<>();
@@ -420,5 +422,9 @@ public class Engine {
 
     public int getSteps() {
         return steps;
+    }
+
+    public String getCurrentRoomImageUrl() {
+        return current.imageUrl;
     }
 }

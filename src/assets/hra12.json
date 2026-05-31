@@ -9,6 +9,7 @@
       "roomId": "1",
       "label": "Okraj mesta",
       "desc": "Stojis na okraji mesta Ravenrock. Vidis sklad, straznu vezu a zamknutu branu do centra.",
+      "imageUrl": "file:src/vizual/img/okraj_mesta.png",
       "items": [
         { "label": "karta", "desc": "Pristupova karta do mestskych objektov" }
       ],
@@ -21,6 +22,7 @@
       "roomId": "2",
       "label": "Opusteny sklad",
       "desc": "V sklade je ticho. Na zemi lezi naradie a stara mapa.",
+      "imageUrl": "file:src/vizual/img/sklad.jpg",
       "items": [
         { "label": "naradie", "desc": "Tazke naradie vhodne na opravy" },
         { "label": "mapa", "desc": "Mapa tajnych chodeb pod mestom" }
@@ -47,6 +49,7 @@
       "roomId": "3",
       "label": "Strazna veza",
       "desc": "Z veze vidis cele mesto. V skrinke je baterka.",
+      "imageUrl": "file:src/vizual/img/Strážna veža.jpg",
       "items": [
         { "label": "baterka", "desc": "Silna baterka osvetlujuca tmu" }
       ],
@@ -72,6 +75,7 @@
       "roomId": "4",
       "label": "Podzemna chodba",
       "desc": "Tmava chodba vedie pod centrum mesta.",
+      "imageUrl": "file:src/vizual/img/Podzemná chodba.jpg",
       "exits": [
         { "label": "jadro", "roomId": "6" },
         { "label": "sklad", "roomId": "2" }
@@ -81,6 +85,7 @@
       "roomId": "5",
       "label": "Brana do centra",
       "desc": "Brana je zamknuta elektronickym systemom. Potrebuješ kartu a osvetlenie baterkou, aby si mohol vojst.",
+      "imageUrl": "file:src/vizual/img/Brána do centra.jpg",
       "uses": [
         {
           "itemId": "karta",
@@ -102,6 +107,7 @@
       "roomId": "6",
       "label": "Energeticke jadro",
       "desc": "Jadro je nestabilne. Vedla lezi ovladacia paka.",
+      "imageUrl": "file:src/vizual/img/Energetické jadro.jpg",
       "items": [
         { "label": "paka", "desc": "Ovladacia paka jadra" }
       ],
@@ -136,6 +142,7 @@
       "roomId": "7",
       "label": "Centrum mesta",
       "desc": "Mesto je prazdne, ale citis bliziacu sa katastrofu.",
+      "imageUrl": "file:src/vizual/img/Centrum mesta.jpg",
       "exits": [
         { "label": "jadro", "roomId": "6" }
       ],
@@ -148,18 +155,21 @@
       "roomId": "8",
       "label": "Zachranene mesto",
       "desc": "Ravenrock prezilo.",
+      "imageUrl": "file:src/vizual/img/Zachranene mesto.jpg",
       "game_over": "Spravne si pouzil predmety a zachranil mesto. Dobry ending."
     },
     {
       "roomId": "9",
       "label": "Tajna miestnost",
       "desc": "Nasiel si tajny trezor plny zlata.",
+      "imageUrl": "file:src/vizual/img/Tajná miestnosť.jpg",
       "game_over": null
     },
     {
       "roomId": "10",
       "label": "Zamknuta brana",
       "desc": "Snazil si sa vojst bez karty.",
+      "imageUrl": "file:src/vizual/img/Zamknutá brána.jpg",
       "game_over": "System ta zlikvidoval. Zly ending."
     }
   ]
